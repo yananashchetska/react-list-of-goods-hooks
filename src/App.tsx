@@ -16,58 +16,45 @@ export const goodsFromServer = [
   'Garlic',
 ];
 
-const SortType = {
-  BY_LENGTH: 'length',
-  ALPHABETICALLY: 'alphabetically',
-};
+enum SortType {
+  BY_LENGTH = 'length',
+  ALPHABETICALLY = 'alphabetically',
+  DEFAULT = '',
+}
 
-// type Good = {
-//   good: string;
-// };
+export const App: React.FC = () => {
+  const [sortField, setSortField] = useState<SortType>(SortType.DEFAULT);
+  const [sortOrder, setSortOrder] = useState<boolean>(true);
 
-export const App = () => {
-  const [sortField, setSortField] = useState('');
-  const [sortOrder, setSortOrder] = useState(true);
-
-  function prepareGoods(goods, sortBy, order = true) {
+  function prepareGoods(goods: string[], sortBy: string, order = true) {
     const preparedGoods = [...goods];
 
-    if (sortBy) {
-      switch (sortBy) {
-        case SortType.BY_LENGTH: {
-          preparedGoods.sort((goodA, goodB) =>
-            order === true
-              ? goodA.length - goodB.length
-              : goodB.length - goodA.length,
-          );
-          break;
-        }
-
-        case SortType.ALPHABETICALLY: {
-          preparedGoods.sort((goodA, goodB) =>
-            order === true
-              ? goodA.localeCompare(goodB)
-              : goodB.localeCompare(goodA),
-          );
-          break;
-        }
-
-        default:
-          return preparedGoods;
+    switch (sortBy) {
+      case SortType.BY_LENGTH: {
+        preparedGoods.sort((goodA, goodB) => goodA.length - goodB.length);
+        break;
       }
+
+      case SortType.ALPHABETICALLY: {
+        preparedGoods.sort((goodA, goodB) => goodA.localeCompare(goodB));
+        break;
+      }
+
+      default:
+        break;
     }
 
-    if (!order) {
-      return preparedGoods.reverse();
-    }
+    return order ? preparedGoods : preparedGoods.reverse();
+  }
 
-    return preparedGoods;
+  function resetHandler(): void {
+    setSortField(SortType.DEFAULT);
+    setSortOrder(true);
   }
 
   const visibleGoods = prepareGoods(goodsFromServer, sortField, sortOrder);
 
   return (
-    // eslint-disable-next-line react/jsx-filename-extension
     <div className="section content">
       <div className="buttons">
         <button
@@ -103,10 +90,7 @@ export const App = () => {
           <button
             type="button"
             className="button is-danger is-light"
-            onClick={() => {
-              setSortField('');
-              setSortOrder(1);
-            }}
+            onClick={resetHandler}
           >
             Reset
           </button>
